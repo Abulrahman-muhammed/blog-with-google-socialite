@@ -28,9 +28,13 @@ Route::post('contact/store',[ContactController::class,'store'])->name('contact.s
 
 // ---------- Blog Routes ------------
 Route::get('/myblogs',[ BlogController::class,'myblogs'])->name('blog.myblogs');
+#### Blog CRUD Routes => Create, Store, Edit, Update, Destroy
 Route::resource('blog', BlogController::class)->except('index');
+
+
 // ---------- comments Routes ---------
 Route::post('/comment/store',[ CommentController::class,'store'])->name('comment.store');
+
 //---------- Socialite Routes -----------
 Route::prefix('google')->name('socialite.')->controller(SocialiteController::class)->group(function(){
 

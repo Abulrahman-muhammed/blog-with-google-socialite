@@ -7,13 +7,14 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
+use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth')->only(['create','myblogs']);
-    }
+    } 
 
     /**
      * Show the form for creating a new resource.
@@ -29,15 +30,16 @@ class BlogController extends Controller
      */
     public function store(StoreBlogRequest $request)
     {
+        // dd($request->all());
         $data=$request->validated();
         // =============== image uploading ====================
         // 1- get image
         $image=$data['image'];
         // 2- change it's current name
-        $NewImageName=time().'_'.$image->getClientOriginalName();
+        $NewImageName=time().'_'.$image->getClientOriginalExtension();
         // 3- move image to my project
-        $location=public_path('storage/blogs');
-        $image->move($location , $NewImageName);
+        // $location=public_path('storage/blogs');
+        $image->storeAs('blogs',$NewImageName , 'public');
         // 4- save new name to database record
         $data['image']=$NewImageName;
         $data['user_id']=auth()->user()->id;
@@ -75,23 +77,22 @@ class BlogController extends Controller
             // =============== image uploading ====================
             if($request->hasFile('image'))
             {
-                $location=public_path('storage/blogs');
-            // Unlink The Old Image
-                unlink($location.'/'.$blog->image);
-            // 1- get image
-            $image=$data['image'];
-            // 2- change it's current name
-            $NewImageName=time().'_'.$image->getClientOriginalName();
-            // 3- move image to my project
-            $image->move($location , $NewImageName);
-            // 4- save new name to database record
-            $data['image']=$NewImageName;
+                // Delete The Old Image
+                Storage::delete('blogs/'.$blog->image);
+                // 1- get image
+                $image=$data['image'];
+                // 2- change it's current name
+                $NewImageName=time().'_'.$image->getClientOriginalExtension();
+                // 3- move image to my project
+                $image->storeAs('blogs',$NewImageName , 'public');
+                // 4- save new name to database record
+                $data['image']=$NewImageName;
             }else{
-            $data['image']=$blog->image;
+                $data['image']=$blog->image;
             }
-            $data['user_id']=auth()->user()->id;
-            $blog->update($data);
-            return redirect()->back()->with('status-blog','Blog Updated Successfully');
+                $data['user_id']=auth()->user()->id;
+                $blog->update($data);
+                return redirect()->back()->with('status-blog','Blog Updated Successfully');
         }
         abort(403);
     }
@@ -103,9 +104,8 @@ class BlogController extends Controller
     {
     if(auth()->user()->id == $blog->user_id){
         if($blog->image){
-            $location=public_path('storage/blogs');
-        // Unlink The Old Image
-            unlink($location.'/'.$blog->image);
+        // Delete The Old Image
+            Storage::delete('blogs/'.$blog->image);
         }
         $blog->delete();
         return redirect()->back()->with('status-blog','Blog Deleted Successfully');

@@ -24,7 +24,6 @@
                         @enderror
                 </div>
             </div>
-
             <button type="submit" class="bbtns d-block mt-20 w-100">{{ __('side.subscribe') }}</button>
         </form>
     </div>
@@ -34,7 +33,7 @@
         <div class="single-sidebar-widget post-category-widget">
             <h4 class="single-sidebar-widget__title">{{ __('side.category') }}</h4>
             <ul class="cat-list mt-20">
-                            {{-- Display Categories --}}
+                    {{-- Display Categories --}}
             @foreach ($categories as $category)
                     <li>
                         <div class="d-flex justify-content-between ">

@@ -33,7 +33,7 @@
                                                 {{ $category->name }}
                                             </a>
                                         </li>
-                                    @endforeach
+                                    @endforeach 
                                 </ul>
                             @endif
                         </li>

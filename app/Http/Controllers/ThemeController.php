@@ -15,7 +15,7 @@ class ThemeController extends Controller
     }
 
     public function category($id){
-        $category=Category::find($id);
+        $category=Category::findOrFail($id);
         $blogs=Blog::where('category_id','=',$id)->paginate(8);
         return view('theme.category',compact('blogs','category'));
     }
