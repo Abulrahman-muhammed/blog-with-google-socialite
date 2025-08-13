@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 use App\Http\Requests\StoreBlogRequest;
 use App\Http\Requests\UpdateBlogRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\ImageTrait;
 
 class BlogController extends Controller
 {
+    use ImageTrait;
     public function __construct()
     {
         $this->middleware('auth')->only(['create','myblogs']);
@@ -33,15 +35,7 @@ class BlogController extends Controller
         // dd($request->all());
         $data=$request->validated();
         // =============== image uploading ====================
-        // 1- get image
-        $image=$data['image'];
-        // 2- change it's current name
-        $NewImageName=time().'_'.$image->getClientOriginalExtension();
-        // 3- move image to my project
-        // $location=public_path('storage/blogs');
-        $image->storeAs('blogs',$NewImageName , 'public');
-        // 4- save new name to database record
-        $data['image']=$NewImageName;
+        $data['image']=$this->uploadImage($data['image'],'blogs');
         $data['user_id']=auth()->user()->id;
         Blog::create($data);
         return redirect()->back()->with('status-blog','Blog Added Successfully');
@@ -79,14 +73,8 @@ class BlogController extends Controller
             {
                 // Delete The Old Image
                 Storage::delete('blogs/'.$blog->image);
-                // 1- get image
-                $image=$data['image'];
-                // 2- change it's current name
-                $NewImageName=time().'_'.$image->getClientOriginalExtension();
-                // 3- move image to my project
-                $image->storeAs('blogs',$NewImageName , 'public');
                 // 4- save new name to database record
-                $data['image']=$NewImageName;
+                $data['image']=$this->uploadImage($data['image'],'blogs');
             }else{
                 $data['image']=$blog->image;
             }
